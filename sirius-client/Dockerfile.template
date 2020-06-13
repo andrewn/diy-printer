@@ -1,0 +1,37 @@
+FROM balenalib/%%BALENA_MACHINE_NAME%%-node:12-build
+
+# Install imagemagick
+RUN install_packages git imagemagick libbluetooth-dev libusb-dev libudev-dev
+
+# Change this to configure which git branch of sirius-client to use
+ENV ReleaseBranch deployed-to-pi
+
+# Install sirius-client
+RUN mkdir /sirius-client \
+  && git clone https://github.com/andrewn/sirius-client.git /sirius-client
+
+RUN cd /sirius-client\ 
+  && git checkout ${ReleaseBranch} \
+  && git pull
+
+# Use yarn
+# RUN cd /sirius-client && yarn install
+#RUN cd /sirius-client && yarn run dist
+
+# Install only prod deps and typescript to compile
+RUN cd /sirius-client && npm install --production && npm install typescript
+
+RUN cd /sirius-client && npm run dist
+
+COPY ./config.yaml /sirius-client/config/default.yaml
+
+# Change this to configure the serial port
+# Each "/" needs to be double-escaped with "\\"
+ENV SerialPortPath \\/dev\\/ttyS0
+
+RUN sed -i -r "s/SERIAL_PORT_GOES_HERE/${SerialPortPath}/" /sirius-client/config/default.yaml
+
+COPY ./run.sh /app/run.sh
+
+CMD ["/app/run.sh"]
+# CMD ["bash"]

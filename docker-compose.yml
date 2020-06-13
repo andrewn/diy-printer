@@ -1,0 +1,5 @@
+version: "2"
+services:
+  sirius-client:
+    build: ./sirius-client
+    privileged: true

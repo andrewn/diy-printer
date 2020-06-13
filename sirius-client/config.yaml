@@ -1,0 +1,28 @@
+---
+version: 1
+
+printers:
+  ttl_printer:
+    driver: escpos
+    parameters:
+      image:
+        width: 384
+      transport:
+        type: ttl
+        parameters:
+          path: SERIAL_PORT_GOES_HERE
+          baud: 9600
+          shouldConfigurePrintSettings: true
+
+network:
+  uri: wss://littleprinter.nordprojects.co/api/v1/connection
+
+bridge:
+  address: abcdef123456
+  devices:
+    device:
+      type: littleprinter
+      address: 55a2e3b91347764f
+      secret: 9aa94986cd
+      xor: 11257772
+      handler: ttl_printer
